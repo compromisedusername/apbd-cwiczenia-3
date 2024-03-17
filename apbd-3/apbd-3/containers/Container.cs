@@ -19,10 +19,10 @@ public abstract class Container : IContainer
     
 
 
-    protected  Container( Dictionary<Product,int> products, int cargoWeight, int cargoHeight, int cargoDepth, int maxLoadWeight)
+    protected  Container( Dictionary<Product,int> liquidProducts, int cargoWeight, int cargoHeight, int cargoDepth, int maxLoadWeight)
     {
         var loadWeight = 0;
-        foreach ( var product in products)
+        foreach ( var product in liquidProducts)
         {
             loadWeight += product.Value;
             if (loadWeight > maxLoadWeight)

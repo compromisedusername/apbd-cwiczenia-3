@@ -7,6 +7,10 @@ public abstract class Product
     private string _name;
     private float _temperature;
 
+    public string Name => _name;
+
+    public float Temperature => _temperature;
+
     public Product( string name, float temperature)
     {
         this._name = name;
