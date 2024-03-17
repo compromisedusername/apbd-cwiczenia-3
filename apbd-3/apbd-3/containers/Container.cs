@@ -1,10 +1,13 @@
-﻿using apbd_3.exceptions;
+﻿using System.Text.Json.Serialization.Metadata;
+using apbd_3.exceptions;
 using apbd_3.interfaces;
+using apbd_3.products;
 
 namespace apbd_3.containers;
 
 public abstract class Container : IContainer
 {
+    private Dictionary<Product, int> _products = new();
     private static int _id = 0;
     
     protected int CargoWeight { get;  set; }
@@ -16,8 +19,17 @@ public abstract class Container : IContainer
     
 
 
-    protected  Container(int cargoWeight, int cargoHeight, int loadWeight, int cargoDepth, int maxLoadWeight)
+    protected  Container( Dictionary<Product,int> products, int cargoWeight, int cargoHeight, int cargoDepth, int maxLoadWeight)
     {
+        var loadWeight = 0;
+        foreach ( var product in products)
+        {
+            loadWeight += product.Value;
+            if (loadWeight > maxLoadWeight)
+            {
+                throw new OverfillException();
+            }
+        }
         CargoWeight = cargoWeight;
         CargoHeight = cargoHeight;
         LoadWeight = loadWeight;
@@ -33,20 +45,60 @@ public abstract class Container : IContainer
     }
 
 
-    public void Unload()
+    public virtual Dictionary<Product,int> Unload()
     {
-        LoadWeight = 0;
-        Console.WriteLine("Ship is unloaded!");
-   
+        var products = _products;
+        _products = new Dictionary<Product, int>();
+        Console.WriteLine("Ship is unloaded");
+        return products;
+    }
+    public virtual Dictionary<Product, int> Unload(Dictionary<Product, int> products)
+    {
+        var tmpproducts = _products;
+        var unloadedWeight = 0;
+        foreach (var product in products)
+        {
+            tmpproducts[product.Key] -= product.Value;
+            if (tmpproducts[product.Key] < 0)
+            {
+                throw new ProductEmptinessException();
+            }
+            unloadedWeight += product.Value;
+            if (unloadedWeight > LoadWeight)
+            {
+                throw new EmptinessExceotion();
+            }
+            
+        }
+        LoadWeight -= unloadedWeight;
+        if(LoadWeight==0)
+            Console.WriteLine("Ship is unloaded!");
+        _products = tmpproducts;
+        return products;
     }
 
-    public virtual void Load(int loadWeight)
-    {
-        if (LoadWeight > CargoWeight)
-        {
-            throw new OverfillException();
-        }
+    public virtual void Load(Dictionary<Product, int> products)
 
+    {
+        var loadWeight = 0;
+        foreach (var product in products)
+        {
+            loadWeight += product.Value;
+            if (loadWeight > CargoWeight)
+            {
+                throw new OverfillException();
+            }
+
+            if (_products.ContainsKey(product.Key))
+            {
+                _products[product.Key] += product.Value;
+            }
+
+            else
+            {
+                products.Add(product.Key, product.Value);
+            }
+        }
         LoadWeight = loadWeight;
     }
 
