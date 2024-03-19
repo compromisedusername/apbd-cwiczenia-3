@@ -7,61 +7,18 @@ namespace apbd_3.containers;
 
 public class LiquidContainer : Container, IHazardNotifier
 {
-    private ProductType _productType;
+   
 
 
-    private LiquidContainer(Dictionary<Product, int> products, int cargoWeight, int cargoHeight, int cargoDepth, int maxLoadWeight, int tmp)
-        : base(products, cargoWeight, cargoHeight, cargoDepth, maxLoadWeight)
+    public LiquidContainer(LiquidProduct product, float loadWeight, float cargoWeight, float cargoHeight, float cargoDepth, float maxLoadWeight) : base(product, loadWeight, cargoWeight, cargoHeight, cargoDepth, maxLoadWeight)
     {
-        var liquidProducts = new Dictionary<LiquidProduct, int>();
-        foreach (var product in products)
+        if (((product.ProductType == ProductType.Unsafe)  & (loadWeight > 0.5 * maxLoadWeight)) |
+             ((product.ProductType == ProductType.Safe)  & (loadWeight > 0.9 * maxLoadWeight)))
         {
-            LiquidProduct liquidProduct = product.Key as LiquidProduct;
-            if (liquidProduct != null)
-            {
-                liquidProducts.Add(liquidProduct, product.Value);
-            }
-        }
-
-        var productDictionary = new Dictionary<LiquidProduct, int>();
-            foreach (var product in liquidProducts)
-            {
-                productDictionary.Add(product.Key, product.Value);
-            }
-
-
-            bool isDifferent = false;
-
-            foreach (var product in liquidProducts)
-            {
-                var currentType = product.Key.ProductType;
-
-                if (isDifferent)
-                {
-                    throw new DifferentProductsException();
-                }
-
-                isDifferent = currentType != product.Key.ProductType;
-            }
-
-            if ((LoadWeight > 0.5 * MaxLoadWeight & _productType == ProductType.Unsafe) ||
-                (LoadWeight > 0.5 * MaxLoadWeight & _productType == ProductType.Safe))
-            {
                 PushHazardNotifier();
-                throw new OverfillException();
-            }
-    }
-    
-
-    public override void Load(Dictionary<Product,int> products) 
-    {
-        base.Load(products);
-        if ( (LoadWeight > 0.5 * MaxLoadWeight & _productType == ProductType.Unsafe) || 
-             (LoadWeight > 0.5 * MaxLoadWeight & _productType == ProductType.Safe) ) {
-            PushHazardNotifier();
-            throw new OverfillException();
         }
-    }
+
+    }  
 
     public void PushHazardNotifier()
     {

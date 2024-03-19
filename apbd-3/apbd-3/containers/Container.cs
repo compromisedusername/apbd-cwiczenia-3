@@ -7,99 +7,63 @@ namespace apbd_3.containers;
 
 public abstract class Container : IContainer
 {
-    private Dictionary<Product, int> _products = new();
     private static int _id = 0;
-    
-    protected int CargoWeight { get;  set; }
-    protected int CargoHeight { get;  set; }
-    protected int LoadWeight { get;  set; }
-    protected int CargoDepth { get;  set; }
-    protected string SerialNumber { get;  set; }
-    protected int MaxLoadWeight { get;  set; }
-    
+    protected Product? Product { get; set; }
+    protected float CargoWeight { get; set; }
+    protected float CargoHeight { get; set; }
+    protected float LoadWeight { get; set; }
+    protected float CargoDepth { get; set; }
+    protected string SerialNumber { get; set; }
+    protected float MaxLoadWeight { get; set; }
 
 
-    protected  Container( Dictionary<Product,int> liquidProducts, int cargoWeight, int cargoHeight, int cargoDepth, int maxLoadWeight)
+
+    protected Container(Product product, float loadWeight, float cargoWeight, float cargoHeight, float cargoDepth,
+        float maxLoadWeight)
     {
-        var loadWeight = 0;
-        foreach ( var product in liquidProducts)
+        if (loadWeight > maxLoadWeight)
         {
-            loadWeight += product.Value;
-            if (loadWeight > maxLoadWeight)
-            {
-                throw new OverfillException();
-            }
+            throw new OverfillException();
         }
+        Product = product;
+        LoadWeight = loadWeight;
         CargoWeight = cargoWeight;
         CargoHeight = cargoHeight;
         LoadWeight = loadWeight;
         CargoDepth = cargoDepth;
-        SerialNumber = "KON-"+GetContainerType()+"-"+_id++;
+        SerialNumber = "KON-" + GetContainerType() + "-" + _id++;
         MaxLoadWeight = maxLoadWeight;
     }
 
     private char GetContainerType()
     {
         return GetType().ToString().ToUpper()[0];
-        
+
     }
 
 
-    public virtual Dictionary<Product,int> Unload()
+    public virtual void Unload()
     {
-        var products = _products;
-        _products = new Dictionary<Product, int>();
-        Console.WriteLine("Ship is unloaded");
-        return products;
+        Product = null;
+        LoadWeight = 0;
+        Console.WriteLine("Container unloaded");
     }
-    public virtual Dictionary<Product, int> Unload(Dictionary<Product, int> products)
+
+
+    public virtual void Load(Product product, int weight)
     {
-        var tmpproducts = _products;
-        var unloadedWeight = 0;
-        foreach (var product in products)
+
+
+        if (product != null & product != Product)
         {
-            tmpproducts[product.Key] -= product.Value;
-            if (tmpproducts[product.Key] < 0)
-            {
-                throw new ProductEmptinessException();
-            }
-            unloadedWeight += product.Value;
-            if (unloadedWeight > LoadWeight)
-            {
-                throw new EmptinessExceotion();
-            }
-            
+            throw new DifferentProductsException();
         }
-        LoadWeight -= unloadedWeight;
-        if(LoadWeight==0)
-            Console.WriteLine("Ship is unloaded!");
-        _products = tmpproducts;
-        return products;
-    }
 
-    public virtual void Load(Dictionary<Product, int> products)
-
-    {
-        var loadWeight = 0;
-        foreach (var product in products)
+        if (weight + LoadWeight > MaxLoadWeight)
         {
-            loadWeight += product.Value;
-            if (loadWeight > CargoWeight)
-            {
-                throw new OverfillException();
-            }
-
-            if (_products.ContainsKey(product.Key))
-            {
-                _products[product.Key] += product.Value;
-            }
-
-            else
-            {
-                products.Add(product.Key, product.Value);
-            }
+            throw new OverfillException();
         }
-        LoadWeight = loadWeight;
+        Product = product;
+        LoadWeight = weight;
     }
-
 }
