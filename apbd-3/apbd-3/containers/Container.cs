@@ -13,8 +13,9 @@ public abstract class Container : IContainer
     protected float CargoHeight { get; set; }
     protected float LoadWeight { get; set; }
     protected float CargoDepth { get; set; }
-    protected string SerialNumber { get; set; }
+    public string SerialNumber { get; }
     protected float MaxLoadWeight { get; set; }
+    public bool OnShip  { get; set; }
 
 
 
@@ -31,22 +32,20 @@ public abstract class Container : IContainer
         CargoHeight = cargoHeight;
         LoadWeight = loadWeight;
         CargoDepth = cargoDepth;
-        SerialNumber = "KON-" + GetContainerType() + "-" + _id++;
+        SerialNumber = "KON-" + GetType().ToString().Split(".")[2][0] + "-" + _id++;
         MaxLoadWeight = maxLoadWeight;
+        OnShip = false;
     }
 
-    private char GetContainerType()
-    {
-        return GetType().ToString().ToUpper()[0];
-
-    }
+   
 
 
     public virtual void Unload()
     {
         Product = null;
         LoadWeight = 0;
-        Console.WriteLine("Container unloaded");
+        Console.WriteLine("Container " +SerialNumber +" unloaded." );
+
     }
 
 
@@ -65,5 +64,23 @@ public abstract class Container : IContainer
         }
         Product = product;
         LoadWeight = weight;
+        Console.WriteLine("Container " +SerialNumber +" loaded." );
+
+    }
+
+    public void ContainerInfo()
+    {
+        Console.WriteLine(
+           "\nProduct: "+ Product.Name +
+           "\nLoadWeight: " + LoadWeight +
+           "\nCargoWeight: " + CargoWeight +
+           "\nCargoHeight: " + CargoHeight +
+           "\nLoadWeight: " + LoadWeight +
+           "\nCargoDepth: " + CargoDepth +
+           "\nSerialNumber: " + SerialNumber +
+           "\nMaxLoadWeight: " + MaxLoadWeight 
+
+    
+            );
     }
 }

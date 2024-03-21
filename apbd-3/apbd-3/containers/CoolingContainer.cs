@@ -27,7 +27,7 @@ public class CoolingContainer:  Container
     public override void Load(Product product, int weight)
     {
         base.Load(product, weight);
-        if (product.GetType() != Product.GetType())
+        if (product.GetType() != Product?.GetType())
         {
             throw new DifferentProductsException();
         }

@@ -16,6 +16,7 @@ public class GasContainer : Container, IHazardNotifier
 
     public override void Unload()
     {
+        base.Unload();
         LoadWeight = (float)(0.05 * LoadWeight);
     }
 
